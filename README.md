@@ -16,10 +16,10 @@ A cross-platform directory scanner written in Go.
 
 ## Installation
 
-<!-- ### Download Pre-built Binary
+### Download Pre-built Binary
 
 Pre-built binaries will be available in the [Releases](https://github.com/isa-programmer/goscan/releases) section.
--->
+
 ### Build from Source
 
 1. **Clone the repository:**
