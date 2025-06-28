@@ -16,6 +16,7 @@ import (
 
 func getUrlsFromFile(path string) ([]string, error) {
 	var url_list []string
+	var line string
 	file, err := os.Open(path)
 	if err != nil {
 		return url_list, err
@@ -23,7 +24,10 @@ func getUrlsFromFile(path string) ([]string, error) {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		url_list = append(url_list, scanner.Text())
+		line = string(scanner.Text())
+		if len(line) > 0 && line[0] != '#' {
+			url_list = append(url_list, line)
+		}
 	}
 	return url_list, nil
 }
