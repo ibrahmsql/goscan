@@ -36,22 +36,14 @@ Pre-built binaries will be available in the [Releases](https://github.com/isa-pr
 ## Usage
 
 ```bash
-goscan [flags] <directory>
+./goscan [/path/to/wordlist.txt] <target-url>
 ```
 
 ### Example
 
 ```bash
-./goscan /path/to/scan
+./goscan wordlist.txt https://example.com
 ```
-
-### Flags
-
-- `-depth int` : Maximum depth to scan (default: unlimited)
-- `-hidden`    : Include hidden files and directories
-- `-exclude string` : Comma-separated list of patterns to exclude
-
-> **Tip:** Run `goscan -h` to see all available options.
 
 ## Contributing
 
