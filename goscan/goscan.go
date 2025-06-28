@@ -13,6 +13,7 @@ import (
 	"os"
 	"sync"
 	"strings"
+	"time"
 )
 
 func printBanner(printHelp bool){
@@ -87,6 +88,7 @@ func main() {
 	}
 	var wg sync.WaitGroup
 	printBanner(false)
+	start := time.Now()
 	for _, url := range url_list {
 		wg.Add(1)
 		go func(url string) {
@@ -113,7 +115,10 @@ func main() {
 	}
 
 	wg.Wait()
-	fmt.Println("\x1b[38;5;1mSucces:\x1b[0m", succes)
-	fmt.Println("\x1b[38;5;2mFailed:\x1b[0m", failed)
+	stop := time.Now()
+	duration := stop.Sub(start)
+	fmt.Println("\x1b[38;5;2mSucces:\x1b[0m", succes)
+	fmt.Println("\x1b[38;5;1mFailed:\x1b[0m", failed)
+	fmt.Printf("Elapsed time: %v\n",duration)
 
 }
