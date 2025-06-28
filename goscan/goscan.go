@@ -12,7 +12,27 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"strings"
 )
+
+func printBanner(printHelp bool){
+	banner := `
+	 ██████╗  ██████╗ ███████╗ ██████╗ █████╗ ███╗   ██╗
+	██╔════╝ ██╔═══██╗██╔════╝██╔════╝██╔══██╗████╗  ██║
+	██║  ███╗██║   ██║███████╗██║     ███████║██╔██╗ ██║
+	██║   ██║██║   ██║╚════██║██║     ██╔══██║██║╚██╗██║
+	╚██████╔╝╚██████╔╝███████║╚██████╗██║  ██║██║ ╚████║
+	 ╚═════╝  ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝`
+
+	fmt.Printf("\x1b[38;5;1m %s \x1b[0m \n",banner)
+	if printHelp{
+		fmt.Println("\t ⚡️ blazing fast directory scanner ⚡️ v1.0.1")
+		fmt.Println("\t Made by https://github.com/isa-programmer")
+		fmt.Println("\t Usage:")
+		fmt.Println("\t\t goscan wordlist/wordlist.txt https://example.com/")
+	}
+}
+
 
 func getUrlsFromFile(path string) ([]string, error) {
 	var url_list []string
@@ -51,8 +71,10 @@ func main() {
 	var statusCode int
 	var path string
 	var domain string
+	var color string
+
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: ./gscan wordlist.txt https://example.com")
+		printBanner(true)
 		return
 	}
 
@@ -64,7 +86,7 @@ func main() {
 		return
 	}
 	var wg sync.WaitGroup
-
+	printBanner(false)
 	for _, url := range url_list {
 		wg.Add(1)
 		go func(url string) {
@@ -72,10 +94,15 @@ func main() {
 			statusCode, err = isValidUrl(domain + url)
 			if err != nil {
 				fmt.Println(err)
-			}
-
+			}			
 			if statusCode != 0 {
-				fmt.Printf("[+] %s -> [%d] \n", url, statusCode)
+				space := strings.Repeat(" ",15-len(url))
+				if statusCode >= 400{
+					color = "\x1b[38;5;1m"
+				} else {
+					color = "\x1b[38;5;2m"
+				}
+				fmt.Printf("%s[+]\x1b[0m %s -> %s [%d] \n",color, url,space, statusCode)
 				succes++
 
 			} else {
@@ -86,7 +113,7 @@ func main() {
 	}
 
 	wg.Wait()
-	fmt.Println("Succes:", succes)
-	fmt.Println("Failed:", failed)
+	fmt.Println("\x1b[38;5;1mSucces:\x1b[0m", succes)
+	fmt.Println("\x1b[38;5;2mFailed:\x1b[0m", failed)
 
 }
