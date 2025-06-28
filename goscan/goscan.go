@@ -23,6 +23,7 @@ import (
 	"time"
 )
 
+
 type Config struct {
 	Wordlist     string
 	Target       string
@@ -62,6 +63,9 @@ type Stats struct {
 
 func getWordsFromFile(path string) ([]string, error) {
 	var words []string
+func getUrlsFromFile(path string) ([]string, error) {
+	var url_list []string
+	var line string
 	file, err := os.Open(path)
 	if err != nil {
 		return words, err
@@ -69,9 +73,14 @@ func getWordsFromFile(path string) ([]string, error) {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
+
 		word := strings.TrimSpace(scanner.Text())
 		if word != "" && !strings.HasPrefix(word, "#") {
 			words = append(words, word)
+
+		line = string(scanner.Text())
+		if len(line) > 0 && line[0] != '#' {
+			url_list = append(url_list, line)
 		}
 	}
 	return words, nil
