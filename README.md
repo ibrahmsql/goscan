@@ -25,12 +25,12 @@ Pre-built binaries will be available in the [Releases](https://github.com/isa-pr
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/isa-programmer/goscan.git
-   cd goscan
+   cd goscan/goscan
    ```
 
 2. **Build the binary:**
    ```bash
-   go build -o goscan
+   go build goscan.go
    ```
 
 ## Usage
@@ -62,9 +62,3 @@ This project is licensed under the [MIT License](LICENSE).
 ## Acknowledgements
 
 - Built with [Go](https://golang.org/)
-
----
-
-> **goscan** - Making directory scanning simple and efficient 🚀
-```
-```
