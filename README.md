@@ -18,6 +18,11 @@ A cross-platform directory scanner written in Go.
 
 ### Download Pre-built Binary
 
+For Linux and MacOS you run this single command (requires sudo)
+```bash
+curl -fsSL https://raw.githubusercontent.com/isa-programmer/goscan/refs/heads/main/install.sh | bash
+```
+
 Pre-built binaries will be available in the [Releases](https://github.com/isa-programmer/goscan/releases) section.
 
 ### Build from Source
