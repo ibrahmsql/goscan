@@ -112,7 +112,7 @@ func main() {
 				fmt.Println(err)
 			}			
 			if statusCode != 0 {
-				space := strings.Repeat(" ",15-len(url))
+				space := strings.Repeat(" ",35-len(url))
 				if statusCode >= 400{
 					color = "\x1b[38;5;1m"
 				} else {
