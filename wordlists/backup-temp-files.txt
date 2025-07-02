@@ -1,4 +1,5 @@
 # Backup and Temporary Files
+#goscan  Backup and Temporary Files wordlist 
 # Common backup file extensions and patterns
 .bak
 .backup

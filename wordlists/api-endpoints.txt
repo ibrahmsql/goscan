@@ -1,5 +1,6 @@
 # API Endpoints and Security Testing
-# goscan api endpoint wordlist
+# goscan api endpoint wordlist - Comprehensive Edition
+# Updated with modern frameworks, security endpoints, and cloud services
 api
 api/v1
 api/v2

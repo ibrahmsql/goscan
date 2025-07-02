@@ -1,5 +1,7 @@
 # Sensitive Files and Directories
 # Configuration files
+# goscan Common configuration files and directories
+
 .env
 .env.local
 .env.production
