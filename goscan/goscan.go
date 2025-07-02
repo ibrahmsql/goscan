@@ -31,6 +31,7 @@ func printBanner(printHelp bool){
 		fmt.Println("\t Made by https://github.com/isa-programmer")
 		fmt.Println("\t Usage:")
 		fmt.Println("\t\t goscan wordlist/wordlist.txt https://example.com/")
+		fmt.Println("\t\t goscan wordlist/wordlist.txt https://example.com/ --no-warning # If you want ignore errors")
 	}
 }
 
@@ -53,10 +54,16 @@ func getUrlsFromFile(path string) ([]string, error) {
 	return url_list, nil
 }
 
-func isValidUrl(url string) (int, error) {
+func isValidUrl(url string, maxAttemps int) (int, error) { 
+	var attemps int = 0
 	resp, err := http.Get(url)
 	if err != nil {
+		if attemps < maxAttemps{
+			attemps++
+			return isValidUrl(url,maxAttemps)
+		} else {
 		return 0, err
+		}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 404 && resp.StatusCode < 500 {
@@ -73,11 +80,18 @@ func main() {
 	var path string
 	var domain string
 	var color string
+	var warning bool = true
+	if len(os.Args) < 4 {
+		if len(os.Args) < 3 {
+			printBanner(true)
+			return
+		} 
+	} else {
 
-	if len(os.Args) < 3 {
-		printBanner(true)
-		return
-	}
+			if os.Args[3] == "--no-warning"{
+				warning = false
+			}
+		}
 
 	path = os.Args[1]
 	domain = os.Args[2]
@@ -93,8 +107,8 @@ func main() {
 		wg.Add(1)
 		go func(url string) {
 			defer wg.Done()
-			statusCode, err = isValidUrl(domain + url)
-			if err != nil {
+			statusCode, err = isValidUrl(domain + url,3)
+			if err != nil && warning{
 				fmt.Println(err)
 			}			
 			if statusCode != 0 {
