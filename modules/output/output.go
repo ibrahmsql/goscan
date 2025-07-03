@@ -27,7 +27,7 @@ type OutputManager struct {
 	Results  []scanner.Result
 }
 
-// New returns a new OutputManager configured with the specified output format and file path.
+// New creates a new OutputManager
 func New(format OutputFormat, filePath string) *OutputManager {
 	return &OutputManager{
 		Format:   format,

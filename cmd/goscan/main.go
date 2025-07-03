@@ -1,3 +1,9 @@
+// Name: goscan
+// Description: A cross-platform directory scanner written in Golang
+// Author: isa-programmer,ibrahimsql
+// Repository: https://github.com/isa-programmer/goscan
+// LICENSE: MIT
+
 package main
 
 import (
@@ -10,8 +16,14 @@ import (
 	"github.com/isa-programmer/goscan/modules/scanner"
 )
 
-// printBanner prints the colored ASCII art banner for the goscan tool.
-// If printHelp is true, it also displays usage instructions, version information, authorship, and example commands.
+// max returns the maximum of two integers
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func printBanner(printHelp bool) {
 	banner := `
 	 ██████╗  ██████╗ ███████╗ ██████╗ █████╗ ███╗   ██║
@@ -31,8 +43,6 @@ func printBanner(printHelp bool) {
 	}
 }
 
-// main is the entry point for the goscan command-line tool.
-// It parses command-line arguments, initializes configuration and logging, runs the directory scan, and prints color-coded results and a summary to the console.
 func main() {
 	var warning bool = true
 	if len(os.Args) < 3 {
@@ -82,7 +92,7 @@ func main() {
 			}
 			// Extract path from URL
 			path := strings.Replace(result.URL, cfg.TargetURL, "", 1)
-			space := strings.Repeat(" ", 35-len(path))
+			space := strings.Repeat(" ", max(0, 35-len(path)))
 			fmt.Printf("%s[+]\x1b[0m %s -> %s [%d] \n", color, path, space, result.StatusCode)
 			success++
 		} else {

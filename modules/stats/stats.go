@@ -2,10 +2,13 @@ package stats
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/isa-programmer/goscan/modules/utils"
 )
 
 // RequestStats holds statistics for individual requests
@@ -42,7 +45,7 @@ type StatsManager struct {
 	Stats *ScanStats
 }
 
-// New returns a new StatsManager with initialized scan statistics, ready to track HTTP request data.
+// New creates a new StatsManager
 func New() *StatsManager {
 	return &StatsManager{
 		Stats: &ScanStats{
@@ -51,7 +54,7 @@ func New() *StatsManager {
 			ResponseTimes:    make([]time.Duration, 0),
 			RequestHistory:   make([]RequestStats, 0),
 			ErrorCounts:      make(map[string]int64),
-			MinResponseTime:  time.Duration(0),
+			MinResponseTime:  time.Duration(math.MaxInt64),
 			MaxResponseTime:  time.Duration(0),
 		},
 	}
@@ -68,7 +71,7 @@ func (sm *StatsManager) RecordRequest(url string, statusCode int, responseTime t
 	sm.Stats.ResponseTimes = append(sm.Stats.ResponseTimes, responseTime)
 
 	// Update min/max response times
-	if sm.Stats.MinResponseTime == 0 || responseTime < sm.Stats.MinResponseTime {
+	if responseTime < sm.Stats.MinResponseTime {
 		sm.Stats.MinResponseTime = responseTime
 	}
 	if responseTime > sm.Stats.MaxResponseTime {
@@ -94,12 +97,14 @@ func (sm *StatsManager) RecordRequest(url string, statusCode int, responseTime t
 
 	sm.Stats.RequestHistory = append(sm.Stats.RequestHistory, reqStats)
 
-	// Calculate average response time
-	var total time.Duration
-	for _, rt := range sm.Stats.ResponseTimes {
-		total += rt
+	// Calculate running average response time
+	n := time.Duration(len(sm.Stats.ResponseTimes))
+	if n == 1 {
+		sm.Stats.AvgResponseTime = responseTime
+	} else {
+		// Running average: new_avg = old_avg + (new_value - old_avg) / n
+		sm.Stats.AvgResponseTime = sm.Stats.AvgResponseTime + (responseTime-sm.Stats.AvgResponseTime)/n
 	}
-	sm.Stats.AvgResponseTime = total / time.Duration(len(sm.Stats.ResponseTimes))
 
 	// Calculate requests per second
 	elapsed := time.Since(sm.Stats.StartTime)
@@ -259,7 +264,7 @@ func (sm *StatsManager) PrintSummary() {
 	fmt.Printf("\x1b[38;5;2mTotal Requests:\x1b[0m %d\n", sm.Stats.TotalRequests)
 	fmt.Printf("\x1b[38;5;2mSuccessful:\x1b[0m %d\n", sm.Stats.SuccessfulReqs)
 	fmt.Printf("\x1b[38;5;1mFailed:\x1b[0m %d\n", sm.Stats.FailedReqs)
-	fmt.Printf("\x1b[38;5;3mTotal Bytes:\x1b[0m %s\n", formatBytes(sm.Stats.TotalBytes))
+	fmt.Printf("\x1b[38;5;3mTotal Bytes:\x1b[0m %s\n", utils.FormatBytes(sm.Stats.TotalBytes))
 	fmt.Printf("\x1b[38;5;4mElapsed Time:\x1b[0m %v\n", sm.GetElapsedTime())
 	fmt.Printf("\x1b[38;5;5mRequests/sec:\x1b[0m %.2f\n", sm.Stats.RequestsPerSecond)
 
@@ -293,21 +298,9 @@ func (sm *StatsManager) PrintSummary() {
 	fmt.Println(strings.Repeat("=", 50))
 }
 
-// formatBytes returns a human-readable string representation of a byte count using appropriate units (B, KB, MB, etc.).
-func formatBytes(bytes int64) string {
-	const unit = 1024
-	if bytes < unit {
-		return fmt.Sprintf("%d B", bytes)
-	}
-	div, exp := int64(unit), 0
-	for n := bytes / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
-}
 
-// getStatusCodeColor returns an ANSI color code string corresponding to the HTTP status code range for terminal output.
+
+// getStatusCodeColor returns the appropriate color for a status code
 func getStatusCodeColor(code int) string {
 	switch {
 	case code >= 200 && code < 300:

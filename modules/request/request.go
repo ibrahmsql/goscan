@@ -27,7 +27,7 @@ type RequestManager struct {
 	Config *RequestConfig
 }
 
-// New returns a new RequestManager initialized with default configuration settings, including a default User-Agent, 10-second timeout, no redirect following, a maximum of 5 redirects, empty headers and cookies, and SSL verification enabled.
+// New creates a new RequestManager with default configuration
 func New() *RequestManager {
 	config := &RequestConfig{
 		UserAgent:      "goscan/1.0.1 (https://github.com/isa-programmer/goscan)",
@@ -45,11 +45,12 @@ func New() *RequestManager {
 	}
 }
 
-// createHTTPClient returns an http.Client configured according to the provided RequestConfig, including proxy, SSL verification, timeout, and redirect handling settings.
+// createHTTPClient creates an HTTP client with the given configuration
 func createHTTPClient(config *RequestConfig) *http.Client {
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: config.IgnoreSSL,
+			MinVersion:         tls.VersionTLS12,
 		},
 	}
 
@@ -166,7 +167,7 @@ func (rm *RequestManager) Options(targetURL string) (*http.Response, error) {
 	return rm.MakeRequest("OPTIONS", targetURL)
 }
 
-// GetCommonUserAgents returns a slice of common User-Agent strings for various browsers and tools.
+// GetCommonUserAgents returns a list of common user agents
 func GetCommonUserAgents() []string {
 	return []string{
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -180,13 +181,13 @@ func GetCommonUserAgents() []string {
 	}
 }
 
-// IsValidURL returns true if the given URL is syntactically valid and begins with "http://" or "https://".
+// IsValidURL checks if a URL is valid
 func IsValidURL(targetURL string) bool {
 	_, err := url.Parse(targetURL)
 	return err == nil && (strings.HasPrefix(targetURL, "http://") || strings.HasPrefix(targetURL, "https://"))
 }
 
-// NormalizeURL returns the input URL with a trailing slash, appending one if it is missing.
+// NormalizeURL normalizes a URL by ensuring it ends with a slash
 func NormalizeURL(targetURL string) string {
 	if !strings.HasSuffix(targetURL, "/") {
 		return targetURL + "/"

@@ -38,7 +38,7 @@ type APIScanner struct {
 	methods    []string
 }
 
-// New returns a new APIScanner configured with the provided settings, logger, and an HTTP client initialized with timeout, TLS, and redirect options.
+// New creates a new APIScanner instance
 func New(cfg *config.Config, log *logger.Logger) *APIScanner {
 	// Create HTTP client
 	client := &http.Client{
@@ -46,6 +46,7 @@ func New(cfg *config.Config, log *logger.Logger) *APIScanner {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: cfg.IgnoreSSL,
+				MinVersion:         tls.VersionTLS12,
 			},
 			MaxIdleConns:        100,
 			MaxIdleConnsPerHost: 10,

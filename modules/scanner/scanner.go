@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -47,8 +47,7 @@ type Statistics struct {
 	mutex     sync.Mutex
 }
 
-// New returns a new Scanner instance configured with the provided settings and logger.
-// It validates the configuration, sets up an HTTP client with the specified timeout, SSL, and redirect behavior, and initializes scanning statistics.
+// New creates a new Scanner instance
 func New(cfg *config.Config, log *logger.Logger) *Scanner {
 	// Validate configuration
 	if err := cfg.Validate(); err != nil {
@@ -205,7 +204,7 @@ func (s *Scanner) scanURL(url string) {
 	// Check if status code is interesting
 	if s.isInterestingStatus(resp.StatusCode) {
 		// Read response body to get size
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		size := int64(len(body))
 
 		// Get redirect location if applicable
@@ -280,9 +279,7 @@ func (s *Scanner) progressReporter() {
 	}
 }
 
-// SaveResults writes scan results to a file in either JSON or plain text format, determined by the file extension.
-// If the filename ends with ".json", results are saved as JSON; otherwise, results are saved as plain text.
-// Returns an error if writing to the file fails.
+// SaveResults saves scan results to a file
 func SaveResults(results []Result, filename string) error {
 	ext := strings.ToLower(filepath.Ext(filename))
 
@@ -296,18 +293,16 @@ func SaveResults(results []Result, filename string) error {
 	}
 }
 
-// saveAsJSON writes the provided scan results to a file in indented JSON format.
-// Returns an error if marshalling or file writing fails.
+// saveAsJSON saves results in JSON format
 func saveAsJSON(results []Result, filename string) error {
 	data, err := json.MarshalIndent(results, "", "  ")
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filename, data, 0644)
+	return os.WriteFile(filename, data, 0644)
 }
 
-// saveAsText writes scan results to a file in plain text format, listing each result's status code and URL, and including redirect locations if present.
-// Returns an error if the file cannot be created or written.
+// saveAsText saves results in plain text format
 func saveAsText(results []Result, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {

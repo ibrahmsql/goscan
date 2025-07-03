@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -24,7 +25,7 @@ type Config struct {
 	IgnoreSSL       bool
 }
 
-// New returns a pointer to a Config struct initialized with default values for all configuration fields.
+// New creates a new Config with default values
 func New() *Config {
 	return &Config{
 		Threads:         10,
@@ -56,6 +57,32 @@ func (c *Config) Validate() error {
 	_, err := url.Parse(c.TargetURL)
 	if err != nil {
 		return fmt.Errorf("invalid target URL: %v", err)
+	}
+	
+	// Validate WordlistPath exists and is readable
+	if c.WordlistPath != "" {
+		if _, err := os.Stat(c.WordlistPath); os.IsNotExist(err) {
+			return fmt.Errorf("wordlist file does not exist: %s", c.WordlistPath)
+		}
+		if file, err := os.Open(c.WordlistPath); err != nil {
+			return fmt.Errorf("wordlist file is not readable: %s", c.WordlistPath)
+		} else {
+			file.Close()
+		}
+	}
+	
+	// Validate ProxyURL format if provided
+	if c.ProxyURL != "" {
+		if _, err := url.Parse(c.ProxyURL); err != nil {
+			return fmt.Errorf("invalid proxy URL format: %v", err)
+		}
+	}
+	
+	// Validate Extensions start with dot
+	for i, ext := range c.Extensions {
+		if ext != "" && !strings.HasPrefix(ext, ".") {
+			return fmt.Errorf("extension at index %d must start with a dot: %s", i, ext)
+		}
 	}
 	
 	// Validate threads

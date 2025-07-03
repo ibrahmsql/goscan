@@ -31,7 +31,7 @@ type ResultFilter struct {
 	Config *FilterConfig
 }
 
-// New returns a ResultFilter initialized with default filtering criteria for HTTP scan results, including common status codes to include and exclude, and no limits on size or time.
+// New creates a new ResultFilter with default configuration
 func New() *ResultFilter {
 	return &ResultFilter{
 		Config: &FilterConfig{
@@ -256,8 +256,7 @@ func (rf *ResultFilter) FilterResults(results []scanner.Result) []scanner.Result
 	return filtered
 }
 
-// ParseStatusCodes converts a comma-separated string of HTTP status codes and ranges (e.g., "200,201,300-305") into a slice of integers.
-// Returns an error if any code or range is invalid.
+// ParseStatusCodes parses a comma-separated string of status codes
 func ParseStatusCodes(codes string) ([]int, error) {
 	if codes == "" {
 		return []int{}, nil
@@ -297,7 +296,7 @@ func ParseStatusCodes(codes string) ([]int, error) {
 	return result, nil
 }
 
-// GetInterestingStatusCodes returns a slice of HTTP status codes that are typically considered noteworthy, including successful responses, redirects, authentication errors, and server errors.
+// GetInterestingStatusCodes returns commonly interesting HTTP status codes
 func GetInterestingStatusCodes() []int {
 	return []int{
 		200, 201, 202, 204, // Success
@@ -307,7 +306,7 @@ func GetInterestingStatusCodes() []int {
 	}
 }
 
-// GetCommonExcludeStatusCodes returns a slice of HTTP status codes that are commonly excluded from scan results, such as 404 (Not Found), 400 (Bad Request), and similar error codes.
+// GetCommonExcludeStatusCodes returns commonly excluded HTTP status codes
 func GetCommonExcludeStatusCodes() []int {
 	return []int{
 		404, 400, 405, 406, 408, 410, 414, 429,

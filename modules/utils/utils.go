@@ -26,8 +26,7 @@ const (
 	ColorWhite  = "\x1b[38;5;7m"
 )
 
-// ValidateURL checks whether the provided URL string is non-empty, properly formatted, uses the http or https scheme, and includes a host.
-// Returns an error if the URL is invalid.
+// ValidateURL validates if a URL is properly formatted
 func ValidateURL(targetURL string) error {
 	if targetURL == "" {
 		return fmt.Errorf("URL cannot be empty")
@@ -53,7 +52,7 @@ func ValidateURL(targetURL string) error {
 	return nil
 }
 
-// NormalizeURL returns the input URL string with a trailing slash, adding one if it is missing.
+// NormalizeURL ensures URL ends with a slash
 func NormalizeURL(targetURL string) string {
 	if !strings.HasSuffix(targetURL, "/") {
 		return targetURL + "/"
@@ -61,8 +60,7 @@ func NormalizeURL(targetURL string) string {
 	return targetURL
 }
 
-// ExtractDomain returns the host or domain part of the given URL string.
-// Returns an error if the URL cannot be parsed.
+// ExtractDomain extracts domain from URL
 func ExtractDomain(targetURL string) (string, error) {
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
@@ -71,14 +69,13 @@ func ExtractDomain(targetURL string) (string, error) {
 	return parsedURL.Host, nil
 }
 
-// FileExists returns true if a file exists at the specified path, or false otherwise.
+// FileExists checks if a file exists
 func FileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return !os.IsNotExist(err)
 }
 
-// CreateDirIfNotExists creates the specified directory and all necessary parent directories if they do not already exist.
-// Returns an error if the directory cannot be created.
+// CreateDirIfNotExists creates a directory if it doesn't exist
 func CreateDirIfNotExists(dirPath string) error {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		return os.MkdirAll(dirPath, 0755)
@@ -86,8 +83,7 @@ func CreateDirIfNotExists(dirPath string) error {
 	return nil
 }
 
-// GetFileSize returns the size of the specified file in bytes.
-// It returns an error if the file does not exist or cannot be accessed.
+// GetFileSize returns the size of a file in bytes
 func GetFileSize(filePath string) (int64, error) {
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -96,7 +92,7 @@ func GetFileSize(filePath string) (int64, error) {
 	return info.Size(), nil
 }
 
-// FormatDuration returns a human-readable string representation of a time.Duration using appropriate units (milliseconds, seconds, minutes, or hours).
+// FormatDuration formats a duration into a human-readable string
 func FormatDuration(d time.Duration) string {
 	if d < time.Second {
 		return fmt.Sprintf("%.0fms", float64(d.Nanoseconds())/1e6)
@@ -110,7 +106,7 @@ func FormatDuration(d time.Duration) string {
 	return fmt.Sprintf("%.1fh", d.Hours())
 }
 
-// FormatBytes converts a byte count into a human-readable string with appropriate units (B, KB, MB, GB, etc.).
+// FormatBytes formats bytes into human readable format
 func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -124,7 +120,7 @@ func FormatBytes(bytes int64) string {
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// GenerateRandomString returns a cryptographically secure random alphanumeric string of the specified length.
+// GenerateRandomString generates a random string of specified length
 func GenerateRandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, length)
@@ -135,12 +131,12 @@ func GenerateRandomString(length int) string {
 	return string(b)
 }
 
-// IsValidStatusCode returns true if the given integer is a valid HTTP status code (100–599).
+// IsValidStatusCode checks if a status code is valid
 func IsValidStatusCode(code int) bool {
 	return code >= 100 && code <= 599
 }
 
-// GetStatusCodeDescription returns a short description for common HTTP status codes, or "Unknown" if the code is not recognized.
+// GetStatusCodeDescription returns a description for HTTP status codes
 func GetStatusCodeDescription(code int) string {
 	switch code {
 	case 200:
@@ -176,8 +172,7 @@ func GetStatusCodeDescription(code int) string {
 	}
 }
 
-// ParseRange converts a string representing numbers and numeric ranges (e.g., "1-3,5,7-9") into a slice of integers.
-// Returns an error if the input contains invalid formats or ranges.
+// ParseRange parses a range string like "1-100" or "80,443,8080"
 func ParseRange(rangeStr string) ([]int, error) {
 	if rangeStr == "" {
 		return []int{}, nil
@@ -229,7 +224,7 @@ func ParseRange(rangeStr string) ([]int, error) {
 	return result, nil
 }
 
-// RemoveDuplicateInts returns a new slice containing the unique integers from the input slice, preserving their original order.
+// RemoveDuplicateInts removes duplicate integers from a slice
 func RemoveDuplicateInts(slice []int) []int {
 	seen := make(map[int]bool)
 	var result []int
@@ -244,7 +239,7 @@ func RemoveDuplicateInts(slice []int) []int {
 	return result
 }
 
-// RemoveDuplicateStrings returns a new slice with duplicate strings removed, preserving the order of the first occurrence of each string.
+// RemoveDuplicateStrings removes duplicate strings from a slice
 func RemoveDuplicateStrings(slice []string) []string {
 	seen := make(map[string]bool)
 	var result []string
@@ -259,13 +254,13 @@ func RemoveDuplicateStrings(slice []string) []string {
 	return result
 }
 
-// IsValidRegex returns true if the provided string is a valid regular expression pattern.
+// IsValidRegex checks if a string is a valid regular expression
 func IsValidRegex(pattern string) bool {
 	_, err := regexp.Compile(pattern)
 	return err == nil
 }
 
-// GetSystemInfo returns a map containing basic system information such as operating system, architecture, Go version, number of CPUs, and number of goroutines.
+// GetSystemInfo returns basic system information
 func GetSystemInfo() map[string]string {
 	return map[string]string{
 		"os":           runtime.GOOS,
@@ -276,19 +271,17 @@ func GetSystemInfo() map[string]string {
 	}
 }
 
-// GetWorkingDirectory returns the current working directory path.
-// It returns an error if the working directory cannot be determined.
+// GetWorkingDirectory returns the current working directory
 func GetWorkingDirectory() (string, error) {
 	return os.Getwd()
 }
 
-// GetAbsolutePath returns the absolute path for the given file or directory path.
-// If the input is already absolute, it is returned unchanged. Returns an error if the path cannot be resolved.
+// GetAbsolutePath returns the absolute path of a file
 func GetAbsolutePath(path string) (string, error) {
 	return filepath.Abs(path)
 }
 
-// TruncateString shortens a string to a specified maximum length, appending "..." if truncation occurs.
+// TruncateString truncates a string to a maximum length
 func TruncateString(s string, maxLen int) string {
 	if len(s) <= maxLen {
 		return s
@@ -296,7 +289,7 @@ func TruncateString(s string, maxLen int) string {
 	return s[:maxLen-3] + "..."
 }
 
-// PadString returns the input string padded on the right with the specified character until it reaches the desired length. If the string is already at least the specified length, it is returned unchanged.
+// PadString pads a string to a specific length
 func PadString(s string, length int, padChar rune) string {
 	if len(s) >= length {
 		return s
@@ -305,7 +298,7 @@ func PadString(s string, length int, padChar rune) string {
 	return s + padding
 }
 
-// ColorizeStatusCode returns the HTTP status code as a string wrapped in terminal color codes based on its range. 2xx codes are green, 3xx yellow, 4xx red, 5xx purple, and others white.
+// ColorizeStatusCode returns a colorized status code string
 func ColorizeStatusCode(code int) string {
 	var color string
 	switch {
@@ -323,12 +316,12 @@ func ColorizeStatusCode(code int) string {
 	return fmt.Sprintf("%s%d%s", color, code, ColorReset)
 }
 
-// ColorizeText wraps the given text with terminal color codes for the specified color and resets formatting at the end.
+// ColorizeText returns colorized text
 func ColorizeText(text, color string) string {
 	return fmt.Sprintf("%s%s%s", color, text, ColorReset)
 }
 
-// ProgressBar returns a textual progress bar representing the completion percentage based on the current and total values, with a configurable width.
+// ProgressBar creates a simple progress bar
 func ProgressBar(current, total int, width int) string {
 	if total == 0 {
 		return ""
@@ -341,7 +334,7 @@ func ProgressBar(current, total int, width int) string {
 	return fmt.Sprintf("[%s] %.1f%% (%d/%d)", bar, percent*100, current, total)
 }
 
-// GetEnvOrDefault returns the value of the specified environment variable, or the provided default value if the variable is not set or is empty.
+// GetEnvOrDefault gets an environment variable or returns a default value
 func GetEnvOrDefault(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -349,12 +342,12 @@ func GetEnvOrDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-// IsPortValid returns true if the given port number is within the valid TCP/UDP port range (1–65535).
+// IsPortValid checks if a port number is valid
 func IsPortValid(port int) bool {
 	return port > 0 && port <= 65535
 }
 
-// SanitizeFilename returns a safe filename by replacing invalid characters with underscores, trimming leading and trailing spaces or dots, and defaulting to "unnamed" if the result is empty.
+// SanitizeFilename removes invalid characters from a filename
 func SanitizeFilename(filename string) string {
 	// Remove or replace invalid characters
 	invalidChars := regexp.MustCompile(`[<>:"/\\|?*]`)

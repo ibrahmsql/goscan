@@ -16,7 +16,7 @@ type WordlistManager struct {
 	Extensions []string
 }
 
-// New returns a new WordlistManager initialized with the specified file path and empty word and extension lists.
+// New creates a new WordlistManager
 func New(filePath string) *WordlistManager {
 	return &WordlistManager{
 		Words:      make([]string, 0),
@@ -197,7 +197,7 @@ func (wm *WordlistManager) SaveToFile(filePath string) error {
 	return writer.Flush()
 }
 
-// GetCommonExtensions returns a slice of commonly used file extensions for documents, scripts, archives, and configuration files.
+// GetCommonExtensions returns a list of common file extensions
 func GetCommonExtensions() []string {
 	return []string{
 		".php", ".html", ".htm", ".asp", ".aspx", ".jsp", ".js",
@@ -207,7 +207,7 @@ func GetCommonExtensions() []string {
 	}
 }
 
-// GetCommonDirectories returns a predefined list of commonly used directory names for web applications and file systems.
+// GetCommonDirectories returns a list of common directory names
 func GetCommonDirectories() []string {
 	return []string{
 		"admin", "administrator", "login", "panel", "dashboard",
@@ -220,8 +220,7 @@ func GetCommonDirectories() []string {
 	}
 }
 
-// MergeWordlists combines words from multiple wordlist files, removes duplicates, sorts them, and saves the result to the specified output file.
-// Returns an error if any input file cannot be loaded or if saving fails.
+// MergeWordlists merges multiple wordlist files into one
 func MergeWordlists(filePaths []string, outputPath string) error {
 	merged := New("")
 
@@ -240,8 +239,7 @@ func MergeWordlists(filePaths []string, outputPath string) error {
 	return merged.SaveToFile(outputPath)
 }
 
-// ValidateWordlistFile verifies that the provided wordlist file path is valid, exists, is a file (not a directory), and is not empty.
-// Returns an error if any of these conditions are not met.
+// ValidateWordlistFile checks if a wordlist file exists and is readable
 func ValidateWordlistFile(filePath string) error {
 	if filePath == "" {
 		return fmt.Errorf("wordlist file path is empty")
