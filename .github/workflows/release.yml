@@ -19,19 +19,16 @@ jobs:
           go-version: '1.22'
 
       - name: Build Linux x64
-        run: |
-          cd goscan
-          GOOS=linux GOARCH=amd64 go build -o goscan-linux-amd64
+        run: GOOS=linux GOARCH=amd64 go build -o goscan-linux-amd64
+        working-directory: goscan
 
       - name: Build macOS ARM64
-        run: |
-          cd goscan
-          GOOS=darwin GOARCH=arm64 go build -o goscan-darwin-arm64
+        run: GOOS=darwin GOARCH=arm64 go build -o goscan-darwin-arm64
+        working-directory: goscan
 
       - name: Build Windows x64
-        run: |
-          cd goscan
-          GOOS=windows GOARCH=amd64 go build -o goscan-windows-amd64.exe
+        run: GOOS=windows GOARCH=amd64 go build -o goscan-windows-amd64.exe
+        working-directory: goscan
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
