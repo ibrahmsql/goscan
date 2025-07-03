@@ -218,10 +218,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+ 
 ## Authors
 
-Made by [isa-programmer](https://github.com/isa-programmer) & ibrahimsql[ibrahimsql](https://github.com/ibrahimsql)
+Made by [isa-programmer](https://github.com/isa-programmer) & ibrahimsql [ibrahimsql](https://github.com/ibrahimsql)
 
 ## Disclaimer
 
