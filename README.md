@@ -221,7 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
  
 ## Authors
 
-Made by [isa-programmer](https://github.com/isa-programmer) & ibrahimsql [ibrahimsql](https://github.com/ibrahimsql)
+Made by [isa-programmer](https://github.com/isa-programmer) & ibrahimsql [ibrahimsql](https://github.com/ibrahmsql)
 
 ## Disclaimer
 
