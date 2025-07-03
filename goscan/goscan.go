@@ -3,7 +3,7 @@
 // Author: isa-programmer
 // Repository: https://github.com/isa-programmer/goscan
 // LICENSE: MIT
-
+// Version: v1.1.0
 package main
 
 import (
@@ -12,113 +12,175 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	"strings"
 	"time"
+	"io"
+	"github.com/charmbracelet/lipgloss"
 )
 
-func printBanner(printHelp bool){
+type Response struct {
+	Url string
+	StatusCode int
+	BodyLength int
+	IsValid bool
+	IsFailed bool
+}
+
+type Responses struct{
+	Is2XX []Response
+	Is4XX []Response
+}
+
+
+func resultsBox(results string){
+	style := lipgloss.NewStyle().
+				Border(lipgloss.ThickBorder()).
+				Bold(true).
+				Width(50)
+	fmt.Println(style.Render(results))
+}
+
+func urlsBox(responses []Response,color string){
+	var output string 
+	var tempString string
+	// green := lipgloss.Color("#74fc05")
+	// red := lipgloss.Color("#fc0509")
+
+	style := lipgloss.NewStyle().
+			Bold(true).
+			Border(lipgloss.ThickBorder()).
+			BorderForeground(lipgloss.Color(color)).
+			Width(110)
+	for index,resp := range responses {
+		tempString = fmt.Sprintf("%d. %s [CODE:%d](LEN:%d)\n",
+						index+1,
+						resp.Url,
+						resp.StatusCode,
+						resp.BodyLength)
+		
+		output = output + tempString
+	}
+	fmt.Println(style.Render(output))
+
+}
+
+func printBanner(){
+	style := lipgloss.NewStyle().
+				Bold(true).
+				Border(lipgloss.DoubleBorder()).
+				BorderForeground(lipgloss.Color("#66082a")).
+				Foreground(lipgloss.Color("#7c000a")).
+				Background(lipgloss.Color("#0f0f0f")).
+				Width(60)
 	banner := `
 	 ██████╗  ██████╗ ███████╗ ██████╗ █████╗ ███╗   ██╗
 	██╔════╝ ██╔═══██╗██╔════╝██╔════╝██╔══██╗████╗  ██║
 	██║  ███╗██║   ██║███████╗██║     ███████║██╔██╗ ██║
 	██║   ██║██║   ██║╚════██║██║     ██╔══██║██║╚██╗██║
 	╚██████╔╝╚██████╔╝███████║╚██████╗██║  ██║██║ ╚████║
-	 ╚═════╝  ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝`
+	 ╚═════╝  ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝
 
-	fmt.Printf("\x1b[38;5;1m %s \x1b[0m \n",banner)
-	if printHelp{
-		fmt.Println("\t ⚡️ blazing fast directory scanner ⚡️ v1.0.1")
-		fmt.Println("\t Made by https://github.com/isa-programmer")
-		fmt.Println("\t Usage:")
-		fmt.Println("\t\t goscan wordlist/wordlist.txt https://example.com/")
-		fmt.Println("\t\t goscan wordlist/wordlist.txt https://example.com/ --no-warning # If you want ignore errors")
-	}
+	  ⚡️ Fast Web Directory Scanner. ⚡️ v1.1.0
+	  	Made by https://github.com/isa-programmer
+	  `
+
+	fmt.Println(style.Render(banner))
 }
 
 
 func getUrlsFromFile(path string) ([]string, error) {
-	var url_list []string
+	var urlList []string // Creating a empty array...
 	var line string
-	file, err := os.Open(path)
+	file, err := os.Open(path) // Try to open file...
 	if err != nil {
-		return url_list, err
+		return urlList, err
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line = string(scanner.Text())
-		if len(line) > 0 && line[0] != '#' {
-			url_list = append(url_list, line)
+		if len(line) > 0 && line[0] != '#' { // Ignore empty lines and comments...
+			urlList = append(urlList, line)
 		}
 	}
-	return url_list, nil
+	return urlList, nil
 }
 
-func isValidUrl(url string, maxAttemps int) (int, error) { 
-	var attemps int = 0
+func checkUrl(url string) (Response, error) { // removed maxAttemps for now...
+	newResponse := Response{
+		Url: url,
+		StatusCode: 0,
+		BodyLength: 0,
+		IsValid: false,
+		IsFailed: false,
+	}
 	resp, err := http.Get(url)
 	if err != nil {
-		if attemps < maxAttemps{
-			attemps++
-			return isValidUrl(url,maxAttemps)
-		} else {
-		return 0, err
-		}
+		newResponse.IsFailed = true
+		return newResponse, err
 	}
+
 	defer resp.Body.Close()
+	newResponse.StatusCode = resp.StatusCode
+	body, err := io.ReadAll(resp.Body)
+	if err == nil{
+		newResponse.BodyLength = len(body)
+	}
+
 	if resp.StatusCode != 404 && resp.StatusCode < 500 {
-		return resp.StatusCode, nil
+		newResponse.IsValid = true
+		return newResponse, nil
 	} else {
-		return 0, nil
+		newResponse.IsValid = false
+		return newResponse, nil
 	}
 }
 
 func main() {
 	var succes int = 0
 	var failed int = 0
-	var statusCode int
 	var path string
 	var domain string
-	var color string
 	var warning bool = true
+	var validUrls Responses
+
 	if len(os.Args) < 4 {
+
 		if len(os.Args) < 3 {
-			printBanner(true)
+			printBanner()
 			return
 		} 
+
 	} else {
 
-			if os.Args[3] == "--no-warning"{
+		if os.Args[3] == "--no-warning"{
 				warning = false
-			}
 		}
+	}
 
 	path = os.Args[1]
 	domain = os.Args[2]
-	url_list, err := getUrlsFromFile(path)
+	urlList, err := getUrlsFromFile(path)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	var wg sync.WaitGroup
-	printBanner(false)
+	printBanner()
 	start := time.Now()
-	for _, url := range url_list {
+	for _, url := range urlList {
 		wg.Add(1)
 		go func(url string) {
 			defer wg.Done()
-			statusCode, err = isValidUrl(domain + url,3)
+			resp, err := checkUrl(domain + url)
 			if err != nil && warning{
 				fmt.Println(err)
 			}			
-			if statusCode != 0 {
-				space := strings.Repeat(" ",35-len(url))
-				if statusCode >= 400{
-					color = "\x1b[38;5;1m"
+			if resp.IsValid {
+				if resp.StatusCode >= 400{
+					validUrls.Is4XX = append(validUrls.Is4XX,resp)
 				} else {
-					color = "\x1b[38;5;2m"
+					validUrls.Is2XX = append(validUrls.Is2XX,resp)
 				}
-				fmt.Printf("%s[+]\x1b[0m %s -> %s [%d] \n",color, url,space, statusCode)
 				succes++
 
 			} else {
@@ -131,8 +193,13 @@ func main() {
 	wg.Wait()
 	stop := time.Now()
 	duration := stop.Sub(start)
-	fmt.Println("\x1b[38;5;2mSucces:\x1b[0m", succes)
-	fmt.Println("\x1b[38;5;1mFailed:\x1b[0m", failed)
-	fmt.Printf("Elapsed time: %v\n",duration)
+	finalResults := fmt.Sprintf(`
+	✅ Succes:%d
+	❌ Failed:%d
+	⏳ Elapsed Time:%v
+	`, succes,failed,duration)
+	urlsBox(validUrls.Is2XX,"#74fc05")
+	urlsBox(validUrls.Is4XX,"#fc0509")
+	resultsBox(finalResults)
 
 }
