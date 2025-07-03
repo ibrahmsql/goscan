@@ -46,6 +46,7 @@ func New(cfg *config.Config, log *logger.Logger) *APIScanner {
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: cfg.IgnoreSSL,
+				MinVersion:         tls.VersionTLS12,
 			},
 			MaxIdleConns:        100,
 			MaxIdleConnsPerHost: 10,

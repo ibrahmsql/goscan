@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -204,7 +204,7 @@ func (s *Scanner) scanURL(url string) {
 	// Check if status code is interesting
 	if s.isInterestingStatus(resp.StatusCode) {
 		// Read response body to get size
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		size := int64(len(body))
 
 		// Get redirect location if applicable
@@ -299,7 +299,7 @@ func saveAsJSON(results []Result, filename string) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filename, data, 0644)
+	return os.WriteFile(filename, data, 0644)
 }
 
 // saveAsText saves results in plain text format

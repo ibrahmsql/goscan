@@ -1,3 +1,9 @@
+// Name: goscan
+// Description: A cross-platform directory scanner written in Golang
+// Author: isa-programmer,ibrahimsql
+// Repository: https://github.com/isa-programmer/goscan
+// LICENSE: MIT
+
 package main
 
 import (
@@ -9,6 +15,14 @@ import (
 	"github.com/isa-programmer/goscan/modules/logger"
 	"github.com/isa-programmer/goscan/modules/scanner"
 )
+
+// max returns the maximum of two integers
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
 
 func printBanner(printHelp bool) {
 	banner := `
@@ -78,7 +92,7 @@ func main() {
 			}
 			// Extract path from URL
 			path := strings.Replace(result.URL, cfg.TargetURL, "", 1)
-			space := strings.Repeat(" ", 35-len(path))
+			space := strings.Repeat(" ", max(0, 35-len(path)))
 			fmt.Printf("%s[+]\x1b[0m %s -> %s [%d] \n", color, path, space, result.StatusCode)
 			success++
 		} else {

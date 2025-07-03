@@ -50,6 +50,7 @@ func createHTTPClient(config *RequestConfig) *http.Client {
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: config.IgnoreSSL,
+			MinVersion:         tls.VersionTLS12,
 		},
 	}
 

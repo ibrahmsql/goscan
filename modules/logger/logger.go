@@ -54,7 +54,7 @@ func NewWithFile(verbose bool, logFilePath string) (*Logger, error) {
 	logger := New(verbose)
 	
 	if logFilePath != "" {
-		file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open log file: %v", err)
 		}
@@ -170,7 +170,10 @@ func (l *Logger) log(levelStr, color, message string) {
 	// Output to file if configured
 	if l.logFile != nil {
 		fileMessage := fmt.Sprintf("%s[%s] %s\n", timestamp, levelStr, message)
-		l.logFile.WriteString(fileMessage)
+		if _, err := l.logFile.WriteString(fileMessage); err != nil {
+			// If file write fails, output error to stderr to avoid infinite recursion
+			fmt.Fprintf(os.Stderr, "Logger: Failed to write to log file: %v\n", err)
+		}
 	}
 }
 
